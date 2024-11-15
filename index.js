@@ -9,9 +9,32 @@ app.use((req, res, next) => {
     next();
 })
 
+const verifyPassword = (req, res , next)=>{
+    const {password} = req.query;
+    if(password === 'chicken'){
+        next();
+    }
+    else{
+        res.send('wrong password')
+    }
+}
+
+// app.use((req, res , next)=>{
+//     const {password} = req.query;
+//     if(password === 'chicken'){
+//         next();
+//     }
+//     else{
+//         res.send('wrong password')
+//     }
+// })
+
 app.use('/dogs',(req,res, next) =>{
     console.log('/dogs middleware')
     next();
+})
+app.get('/secret',verifyPassword,(req,res)=>{
+    res.send('fishpie')
 })
 
 app.get('/', (req, res) =>{
