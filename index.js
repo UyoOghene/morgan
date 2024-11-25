@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan'); 
+const AppError = require('./AppError')
 
 app.use(morgan('tiny'));
 app.use((req, res, next) => {
@@ -14,9 +15,7 @@ const verifyPassword = (req, res , next)=>{
     if(password === 'chicken'){
         next();
     }
-    else{
-        res.send('wrong password')
-    }
+    throw new AppError('Password required', 401)
 }
 
 // app.use((req, res , next)=>{
@@ -37,6 +36,10 @@ app.get('/secret',verifyPassword,(req,res)=>{
     res.send('fishpie')
 })
 
+app.get('/admin', (req,res)=> {
+    throw new AppError('Not an admin', 403)
+})
+
 app.get('/', (req, res) =>{
     console.log(`request time : ${req.requestTime}`)
     res.send('home')
@@ -46,9 +49,10 @@ app.get('/dogs', (req, res) =>{
     res.send('Woof')
 })
 
-app.use((req, res)=>{
-    res.status(404).send('NOT found')
-})
+app.use((err, req, res, next) => {
+    const { status = 500, message = 'Something went wrong' } = err;
+    res.status(status).send(message);
+});
 
 app.listen(3000, () =>{
     console.log('listening on 3000')
